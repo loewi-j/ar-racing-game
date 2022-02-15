@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="create" id="create" height="550" width="375"/>
+    <canvas ref="create" id="create" height="550" width="380"/>
 
   </div>
 </template>
@@ -11,10 +11,9 @@ export default {
   name: 'Create2D',
   data() {
     return {
-      positions: [82, 162, 242],
+      positions: [86, 164, 242],
       queue: null,
       speed: 5,  //默认速度
-      easel: null,  //画布
       stage: null,
       bgImg: null,  //背景图
       bgImg2: null,  //背景图bgImg2
@@ -28,7 +27,6 @@ export default {
       },
 
       addTimeout: 0, //加速定时器
-      subTimeout: 0,
       pointIntervalId: 0,
       intervalTime: 0,
       intervalId: 0,
@@ -45,23 +43,19 @@ export default {
     manifest: Array //图片资源
   },
   watch: {
-    direction(index) {
-      console.log(index)
-      if (index === 3) {
-        console.log("右");
-        this.turnRight();
-      } else if (index === 1) {
-        console.log("左");
-        this.turnLeft();
-      } else if (index === 2) {
-        console.log("下");
-        this.turnDown();
-      } else if (index === 0) {
-        console.log("上");
-        this.turnTop();
-      } else {
-        console.log("无效");
-      }
+    direction: {
+      handler(index) {
+        if (index === 3) {
+          this.turnRight();
+        } else if (index === 1) {
+          this.turnLeft();
+        } else if (index === 2) {
+          this.turnDown();
+        } else if (index === 0) {
+          this.turnTop();
+        }
+      },
+      deep: true
     }
   },
   //  这里主要不能放在 created() 里
@@ -71,7 +65,6 @@ export default {
   },
   methods: {
     init() {
-      this.easel = this.$refs.create
       this.stage = new createjs.Stage('create')
       this.drawMask();
     },
@@ -80,18 +73,16 @@ export default {
       this.queue = new createjs.LoadQueue(false);
       this.queue.on('complete', this.handleComplete, this);
       this.queue.loadManifest(this.manifest);
-      this.bindEvent();
     },
     //资源加载成功后
     handleComplete() {
       let car = new createjs.Bitmap(this.queue.getResult('car'))
       let carBomb = new createjs.Bitmap(this.queue.getResult('carBomb'))
       let carQuick = new createjs.Bitmap(this.queue.getResult('carQuick'))
-      let carSlow = new createjs.Bitmap(this.queue.getResult('carSlow'))
       let bg = this.queue.getResult('bg')
 
       this.drawBg(bg);
-      this.drawCar(car, carBomb, carQuick, carSlow);
+      this.drawCar(car, carBomb, carQuick);
       this.play()
     },
     play() {
@@ -113,61 +104,18 @@ export default {
       createjs.Ticker.addEventListener("tick", this.tick);
       createjs.Ticker.paused = 0;
     },
-    //绑定事件
-    bindEvent: function () {
-      let startX, startY, moveEndX, moveEndY, X, Y, flag;
-      const that = this;
-
-      this.easel.addEventListener("touchstart", handleTouchStart, false);
-      this.easel.addEventListener("touchmove", handleTouchMove, false);
-
-      function handleTouchStart(e) {
-        e.preventDefault();
-        flag = 0;
-        startX = e.targetTouches[0].pageX
-        startY = e.targetTouches[0].pageY
-      }
-
-      function handleTouchMove(e) {
-        if (flag) return;
-        flag = 1;
-
-        e.preventDefault();
-        moveEndX = e.targetTouches[0].pageX
-        moveEndY = e.targetTouches[0].pageY
-        X = moveEndX - startX
-        Y = moveEndY - startY
-
-        if (Math.abs(X) > Math.abs(Y) && X > 0) {
-          console.log("向右");
-          that.turnRight();
-        } else if (Math.abs(X) > Math.abs(Y) && X < 0) {
-          console.log("向左");
-          that.turnLeft();
-        } else if (Math.abs(Y) > Math.abs(X) && Y > 0) {
-          console.log("向下");
-          that.turnDown();
-        } else if (Math.abs(Y) > Math.abs(X) && Y < 0) {
-          console.log("向上");
-          that.turnTop();
-        } else {
-          flag = 0;
-          console.log("无效");
-        }
-      }
-    },
 
     turnLeft() {
       let car = this.stage.getChildByName("car")
-      if (car.x < 100)
+      if (car.x < 120)
         return;
 
       createjs.Tween.get(car).to({
-        x: car.x - 80
+        x: car.x - 78
       }, 200);
 
       this.crash.car = {
-        x: [car.x - 80, car.x - 80 + 50],
+        x: [car.x - 78, car.x - 78 + 50],
         y: [car.y, car.y + 78]
       };
     },
@@ -177,11 +125,11 @@ export default {
         return;
 
       createjs.Tween.get(car).to({
-        x: car.x + 80
+        x: car.x + 78
       }, 150);
 
       this.crash.car = {
-        x: [car.x + 80, car.x + 80 + 50],
+        x: [car.x + 78, car.x + 78 + 50],
         y: [car.y, car.y + 78]
       };
     },
@@ -196,7 +144,7 @@ export default {
 
       this.crash.car = {
         x: [car.x, car.x + 50],
-        y: [car.y - 80, car.y - 80 + 78]
+        y: [car.y - 78, car.y - 78 + 78]
       };
     },
     turnDown() {
@@ -210,7 +158,7 @@ export default {
 
       this.crash.car = {
         x: [car.x, car.x + 50],
-        y: [car.y + 80, car.y + 80 + 78]
+        y: [car.y + 78, car.y + 78 + 78]
       };
     },
     //绘制背景
@@ -218,24 +166,23 @@ export default {
       this.bgImg = new createjs.Bitmap(bg);
       this.bgImg.y = 0;
       this.bgImg.x = 0;
-      this.bgImg.scaleX = 0.5;
-      this.bgImg.scaleY = 0.5;
+      this.bgImg.scaleX = 0.73;
+      this.bgImg.scaleY = 0.73;
 
       //背景副本 用于滚动时连接
       this.bgImgH = -bg.height / 2;
       this.bgImg2 = new createjs.Bitmap(bg);
       this.bgImg2.x = 0;
       this.bgImg2.y = this.bgImgH;
-      this.bgImg2.scaleX = 0.5;
-      this.bgImg2.scaleY = 0.5;
+      this.bgImg2.scaleX = 0.73;
+      this.bgImg2.scaleY = 0.73;
 
       //加载倒计时及分数
-      this.timeDisc = new createjs.Text(`Remaining: ${this.intervalTime} s`, "16px Arial", "#c2bdea")
+      this.timeDisc = new createjs.Text(`Remaining: ${this.intervalTime} s`, "16px Arial", "#2f2a63")
       this.timeDisc.x = 135
       this.timeDisc.y = 14
 
-      //534a92
-      this.scoreDisc = new createjs.Text(`Score: 0`, "16px Arial", "#c2bdea")
+      this.scoreDisc = new createjs.Text(`Score: 0`, "16px Arial", "#2f2a63")
       this.scoreDisc.x = 155
       this.scoreDisc.y = 42
 
@@ -246,7 +193,6 @@ export default {
     },
 
     tick(e) {
-      // console.log(e)
       if (e.paused !== 1) {
         //背景滚动
         this.bgImg.y = this.speed + this.bgImg.y;
@@ -312,34 +258,29 @@ export default {
       let car = this.stage.getChildByName("car");
       car.getChildByName('bomb').visible = true;
       car.getChildByName('add').visible = false;
-      car.getChildByName('sub').visible = false;
 
       this.destroy();
     },
 
     //绘制汽车
-    drawCar(car, bomb, add, sub) {
+    drawCar(car, bomb, add) {
       let carGroup = new createjs.Container()
       carGroup.name = 'car'
+      car.x = -16
       carGroup.addChild(car)
 
       //绘制特效
       carGroup.addChild(bomb)
       carGroup.addChild(add)
-      carGroup.addChild(sub)
       bomb.x = -30
       bomb.y = -8
       add.x = -8
       add.y = -4
-      sub.x = 2
-      sub.y = 0
 
       bomb.name = 'bomb'
       add.name = 'add'
-      sub.name = 'sub'
       bomb.visible = false
       add.visible = false
-      sub.visible = false
 
       carGroup.y = 672 - 76 - 180
       carGroup.x = 187 - 25
@@ -388,7 +329,7 @@ export default {
       this.mask = new createjs.Container()
 
       let bg = new createjs.Shape();
-      bg.graphics.beginFill("#ececec").drawRect(0, 0, 375, 550);
+      bg.graphics.beginFill("#ececec").drawRect(0, 0, 380, 550);
       bg.name = 'bg'
 
       let title = new createjs.Text(`赛车游戏`, "40px Arial", "#534a92")
@@ -432,30 +373,15 @@ export default {
     //改变分数  参数 add--加分  sub--扣分
     changePoint(type) {
       const car = this.stage.getChildByName('car')
-
       if (type === 'add') {
         //改变UI
         car.getChildByName('add').visible = true;
-        car.getChildByName('sub').visible = false;
         //重新设置延时器
         clearTimeout(this.addTimeout);
-        clearTimeout(this.subTimeout);
         this.score++
 
         this.addTimeout = setTimeout(function () {
           car.getChildByName('add').visible = false;
-        }, 2000);
-      }
-      if (type === 'sub') {
-
-        car.getChildByName('sub').visible = true;
-        car.getChildByName('add').visible = false;
-        clearTimeout(this.addTimeout);
-        clearTimeout(this.subTimeout);
-        this.score--
-
-        this.subTimeout = setTimeout(function () {
-          car.getChildByName('sub').visible = false;
         }, 2000);
       }
     },

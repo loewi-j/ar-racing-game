@@ -80,14 +80,13 @@ export default {
       score: 0,
       allTime: 25,
       manifest: [
-        {src: require('../assets/img/car_eff_bomb@2x.png'), id: 'carBomb'},
-        {src: require('../assets/img/car_eff_quick@2x.png'), id: 'carQuick'},
-        {src: require('../assets/img/car_eff_slow@2x.png'), id: 'carSlow'},
-        {src: require('../assets/img/car_prop1_roadb@2x.png'), id: 'sub'},
-        {src: require('../assets/img/car_prop2_gas@2x.png'), id: 'add'},
-        {src: require('../assets/img/car_prop3_bomb@2x.png'), id: 'over'},
-        {src: require('../assets/img/car_1@2x.png'), id: 'car'},
-        {src: require('../assets/img/car_bg_1@2x.jpg'), id: 'bg'}
+        {src: require('../assets/img/over.png'), id: 'carBomb'},
+        {src: require('../assets/img/add.png'), id: 'carQuick'},
+        {src: require('../assets/img/barricades.png'), id: 'sub'},
+        {src: require('../assets/img/diamond.png'), id: 'add'},
+        {src: require('../assets/img/bomb.png'), id: 'over'},
+        {src: require('../assets/img/car.png'), id: 'car'},
+        {src: require('../assets/img/bg.jpg'), id: 'bg'}
       ],
     }
   },
