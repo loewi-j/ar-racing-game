@@ -36,16 +36,15 @@
           @addExample="addExample"/>
     </section>
 
-    <div id="mask" v-show="maskShow">
-      <div class="maskLog" id="gameOver" v-show="gameOverShow">
-        <h2>游戏结束！</h2>
-        <p>您的的得分为：{{ score }}</p>
-        <button @click="playAgain">继续游戏</button>
-        <button @click="backIndex">返回主页</button>
-      </div>
-      <div class="maskLog" id="setting" v-show="settingShow">
-      </div>
-    </div>
+    <MaskBox
+        :maskShow="maskShow"
+        :gameOverShow="gameOverShow"
+        :settingShow="settingShow"
+        :score="score"
+        @playAgain="playAgain"
+        @backIndex="backIndex"
+        @closed="closed"
+    />
   </div>
 </template>
 
@@ -57,10 +56,12 @@ import * as mobilenet from '@tensorflow-models/mobilenet'
 import * as knnClassifier from '@tensorflow-models/knn-classifier'
 import Create2D from './Create2D.vue'
 import Direction from "./Direction";
+import MaskBox from "./MaskBox";
 
 export default {
   name: "WebCam",
   components: {
+    MaskBox,
     Direction,
     Create2D
   },
@@ -88,6 +89,15 @@ export default {
         {src: require('../assets/img/car.png'), id: 'car'},
         {src: require('../assets/img/bg.jpg'), id: 'bg'}
       ],
+    }
+  },
+  props: {
+    setting: Boolean
+  },
+  watch: {
+    setting() {
+      this.maskShow = !this.maskShow
+      this.settingShow = !this.settingShow
     }
   },
   mounted() {
@@ -194,22 +204,15 @@ export default {
           const classes = ["up", "left", "down", "right"];
           this.console = `prediction: ${classes[result.classIndex]}\n`;
           this.direction = result.classIndex
-
-          // if (result.classIndex === this.type) {
-          //   this.score++
-          //   // 庆祝动画
-          //   this.$refs.cam.fireworkPlay()
-          //   // 继续游戏
-          //   setTimeout(async () =>{
-          //     this.$refs.cam.fireworkStop()
-          //     await this.bindPlaying();
-          //   }, 500);
-          //   break;
-          // }
         }
         await tf.nextFrame();
       }
     },
+    closed() {
+      this.maskShow = false
+      this.settingShow = false
+      this.gameOverShow = false
+    }
   }
 }
 </script>
@@ -238,42 +241,4 @@ button {
   margin-top: 4rem;
 }
 
-#mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  transition: all .5s linear;
-}
-
-.maskLog {
-  line-height: 1.5;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  transition: all .5s linear;
-  color: var(--purple);
-}
-
-#gameOver {
-  width: 450px;
-  height: 230px;
-  /*margin: 100px auto;*/
-  background-color: #eeeeee;
-  padding: 15px;
-  text-align: center;
-  border-radius: 15px;
-}
-
-#gameOver p {
-  line-height: 70px;
-  font-weight: 550;
-}
 </style>

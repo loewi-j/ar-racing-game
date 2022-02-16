@@ -12,6 +12,7 @@
     "@tensorflow/tfjs": "^3.13.0",
     "core-js": "^2.6.5",
     "createjs": "^1.0.1",
+    "element-ui": "^2.15.6",
     "script-loader": "^0.7.2",
     "vue": "^2.6.10"
   },
