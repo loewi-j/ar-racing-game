@@ -27,7 +27,7 @@
           :direction="direction"
           :manifest="manifest"
           :score="score"
-          :allTime="allTime"/>
+          :settingData="settingData"/>
     </section>
 
     <section>
@@ -44,6 +44,7 @@
         @playAgain="playAgain"
         @backIndex="backIndex"
         @closed="closed"
+        @sure="sure"
     />
   </div>
 </template>
@@ -80,6 +81,11 @@ export default {
       activationList: [],
       score: 0,
       allTime: 25,
+      settingData: {
+        speed: 0.4,
+        playTime: 20,
+        proportion: [5, 4, 1]
+      },
       manifest: [
         {src: require('../assets/img/over.png'), id: 'carBomb'},
         {src: require('../assets/img/add.png'), id: 'carQuick'},
@@ -179,6 +185,7 @@ export default {
       console.log('maskShow')
       this.maskShow = true
       this.gameOverShow = true
+
     },
 
     playAgain() {
@@ -207,6 +214,11 @@ export default {
         }
         await tf.nextFrame();
       }
+    },
+    sure(settingData) {
+      console.log(settingData)
+      this.settingData = settingData
+      this.closed()
     },
     closed() {
       this.maskShow = false

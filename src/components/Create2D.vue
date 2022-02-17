@@ -38,7 +38,7 @@ export default {
     }
   },
   props: {
-    allTime: Number, //倒计时间
+    settingData: Object, //设置数据
     direction: Number, //方向
     manifest: Array //图片资源
   },
@@ -70,6 +70,8 @@ export default {
     },
     //预加载图片
     preLoad() {
+      createjs.Ticker.removeEventListener("tick", this.tick);
+
       this.queue = new createjs.LoadQueue(false);
       this.queue.on('complete', this.handleComplete, this);
       this.queue.loadManifest(this.manifest);
@@ -86,6 +88,7 @@ export default {
       this.play()
     },
     play() {
+      console.log(this.settingData)
       this.stage.removeChild(this.mask)
       //障碍物
       let addPoint = new createjs.Bitmap(this.queue.getResult('add'))
@@ -96,10 +99,10 @@ export default {
       //循环绘制
       this.pointIntervalId = setInterval(function () {
         that.drawPoint(addPoint, subPoint, overPoint)
-      }, 400);  //400ms ~ 1200ms
+      }, this.settingData.speed * 1000);  //400ms ~ 1200ms
 
       this.score = 0
-      this.intervalTime = this.allTime
+      this.intervalTime = this.settingData.playTime
       this.intervalId = setInterval(this.Timing, 1000);
       createjs.Ticker.addEventListener("tick", this.tick);
       createjs.Ticker.paused = 0;
@@ -298,17 +301,24 @@ export default {
     drawPoint(addPoint, subPoint, overPoint) {
       //随机绘制
       let type = Math.floor(10 * Math.random())
+      console.log(type)
       let prop
+      const rate = this.settingData.proportion[1] + this.settingData.proportion[2]
       // 可调节道具出现比例
-      if (type === 0) {
+      if (type >= 0 && type <= this.settingData.proportion[2]) {
+        console.log('over')
         prop = overPoint.clone()
         prop.name = 'over'
-      } else if ((type >= 1) && (type <= 6)) {
-        prop = addPoint.clone()
-        prop.name = 'add'
-      } else if ((type >= 7) && (type <= 10)) {
+      } else if ((type >= this.settingData.proportion[2]) && (type <= rate)) {
         prop = subPoint.clone()
         prop.name = 'sub'
+        console.log('sub')
+
+      } else if ((type >= (rate+1)) && (type <= 10)) {
+        prop = addPoint.clone()
+        prop.name = 'add'
+        console.log('add')
+
       }
       // 随机坐标
       prop.x = this.positions[Math.floor(3 * Math.random())]
